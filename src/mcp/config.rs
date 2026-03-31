@@ -3,6 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_repr::Serialize_repr;
 use sha2::{Digest, Sha256};
 
 use crate::constants;
@@ -13,17 +14,29 @@ use crate::{auth, fs_util};
 // Request
 // ---------------------------------------------------------------------------
 
+/// 配置来源
+#[derive(Debug, Clone, Copy, Serialize_repr)]
+#[repr(u8)]
+pub enum McpBindSource {
+    /// Interactive
+    Interactive = 1,
+    /// QR Code
+    Qrcode = 2,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct GetMcpConfigRequest {
     pub bot_id: String,
     pub time: u64,
     pub nonce: String,
     pub signature: String,
+    pub bind_source: McpBindSource,
+    pub cli_version: String,
 }
 
 impl GetMcpConfigRequest {
     /// Build a signed request from stored bot credentials
-    pub fn build() -> Result<Self> {
+    pub fn build(bind_source: McpBindSource) -> Result<Self> {
         let bot = auth::get_bot_info().ok_or_else(|| {
             anyhow::anyhow!(
                 "未找到企业微信机器人信息，请先运行 `{} init`",
@@ -43,6 +56,8 @@ impl GetMcpConfigRequest {
             time,
             nonce,
             signature,
+            bind_source,
+            cli_version: env!("CARGO_PKG_VERSION").to_string(),
         })
     }
 }
@@ -158,34 +173,11 @@ fn load_mcp_config_from_path(path: &std::path::Path, key: &[u8; 32]) -> Option<V
 // API Call
 // ---------------------------------------------------------------------------
 
-/// Return the MCP config list, reading from local cache first; fall back to a network fetch.
-///
-/// On a cache miss the remote result is automatically persisted to disk.
-pub async fn get_mcp_config() -> Result<GetMcpConfigResponse, FetchMcpConfigError> {
-    if let Some(list) = load_mcp_config() {
-        tracing::debug!("Loaded MCP config from local cache");
-        return Ok(GetMcpConfigResponse {
-            errcode: 0,
-            errmsg: Some("ok (cached)".into()),
-            list: Some(list),
-        });
-    }
-
-    fetch_mcp_config().await
-}
-
 /// Always fetch the MCP config from the server, bypassing local cache, and persist the result.
-pub async fn fetch_mcp_config() -> Result<GetMcpConfigResponse, FetchMcpConfigError> {
-    let resp = fetch_mcp_config_from_server().await?;
-    if let Some(ref list) = resp.list {
-        save_mcp_config(list)?;
-    }
-    Ok(resp)
-}
-
-/// Send the actual HTTP request to the MCP config endpoint.
-async fn fetch_mcp_config_from_server() -> Result<GetMcpConfigResponse, FetchMcpConfigError> {
-    let request = GetMcpConfigRequest::build()?;
+pub async fn fetch_mcp_config(
+    bind_source: McpBindSource,
+) -> Result<GetMcpConfigResponse, FetchMcpConfigError> {
+    let request = GetMcpConfigRequest::build(bind_source)?;
 
     let response = reqwest::Client::builder()
         .build()
@@ -220,6 +212,14 @@ async fn fetch_mcp_config_from_server() -> Result<GetMcpConfigResponse, FetchMcp
     if resp.errcode != 0 {
         return Err(FetchMcpConfigError::Api(resp));
     }
+
+    let Some(list) = &(resp.list) else {
+        return Err(FetchMcpConfigError::Other(anyhow::anyhow!(
+            "<MCP config list is empty>"
+        )));
+    };
+
+    save_mcp_config(list)?;
 
     Ok(resp)
 }
@@ -357,6 +357,14 @@ mod tests {
         let loaded = load_mcp_config_from_path(&path, &key).unwrap();
         assert_eq!(loaded.len(), 2);
         assert_eq!(loaded[0].biz_type.as_deref(), Some("contact"));
+    }
+
+    #[test]
+    fn bind_source_serializes_as_number() {
+        let json = serde_json::to_string(&McpBindSource::Interactive).unwrap();
+        assert_eq!(json, "1", "Expected number 1, got: {json}");
+        let json = serde_json::to_string(&McpBindSource::Qrcode).unwrap();
+        assert_eq!(json, "2", "Expected number 2, got: {json}");
     }
 
     #[test]

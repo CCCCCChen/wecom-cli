@@ -1,5 +1,6 @@
 use crate::auth;
 use crate::mcp;
+use crate::mcp::config::McpBindSource;
 use anyhow::Result;
 use clap::ArgMatches;
 
@@ -13,13 +14,13 @@ pub async fn handle_init_cmd(_matches: &ArgMatches) -> Result<()> {
         .item("manual", "手动输入 Bot ID 和 Secret", "")
         .interact()?;
 
-    let bot = match method {
-        "qrcode" => init_qrcode().await?,
-        _ => init_manual().await?,
+    let (bot, bind_source) = match method {
+        "qrcode" => (init_qrcode().await?, McpBindSource::Qrcode),
+        _ => (init_manual().await?, McpBindSource::Interactive),
     };
 
     auth::set_bot_info(&bot)?;
-    verify_and_finish().await
+    verify_and_finish(bind_source).await
 }
 
 /// 扫码接入流程
@@ -41,11 +42,11 @@ async fn init_manual() -> Result<auth::Bot> {
 }
 
 /// 验证凭证并完成初始化
-async fn verify_and_finish() -> Result<()> {
+async fn verify_and_finish(bind_source: McpBindSource) -> Result<()> {
     let spinner = cliclack::spinner();
     spinner.start("正在验证企业微信机器人凭证...");
 
-    if let Err(e) = mcp::config::fetch_mcp_config().await {
+    if let Err(e) = mcp::config::fetch_mcp_config(bind_source).await {
         spinner.stop("企业微信机器人凭证验证失败");
 
         let mut output_errmsg: String = "验证企业微信机器人凭证失败".to_owned();

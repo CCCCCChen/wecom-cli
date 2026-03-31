@@ -6,9 +6,13 @@ use rand::Rng;
 
 /// Look up the MCP URL for the given `category` (matched against `biz_type`).
 pub async fn get_mcp_url(category: &str) -> Result<String> {
-    let resp = config::get_mcp_config().await?;
+    let Some(list) = config::load_mcp_config() else {
+        return Err(anyhow::anyhow!(
+            "未找到 MCP 配置缓存，请先运行 `{} init`",
+            env!("CARGO_BIN_NAME")
+        ));
+    };
 
-    let list = resp.list.unwrap_or_default();
     let target = list
         .iter()
         .find(|item| item.biz_type.as_deref() == Some(category))
