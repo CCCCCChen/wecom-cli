@@ -36,7 +36,7 @@ wecom-cli doc <tool_name> '<json_params>'
 
 查询子表全部记录。
 
-- 
+- 通过 sheetid：
 ```bash
 wecom-cli doc smartsheet_get_records '{"docid": "DOCID", "sheet_id": "SHEETID"}'
 ```
@@ -51,7 +51,7 @@ wecom-cli doc smartsheet_get_records '{"url": "https://doc.weixin.qq.com/smartsh
 
 添加一行或多行记录，单次建议 500 行内。
 
-**调用前**必须先了解目标表的字段类型（通过 `smartsheet_get_fields`）。
+**调用前**必须先了解目标表的字段类型（通过 `smartsheet_get_fields`），重点关注 `field_type`。对于单选/多选（Option）字段，需注意匹配已有选项的 `id`。
 
 ```bash
 wecom-cli doc smartsheet_add_records '{"docid": "DOCID", "sheet_id": "SHEETID", "records": [{"values": {"任务名称": [{"type": "text", "text": "完成需求文档"}], "优先级": [{"text": "高"}]}}]}'
@@ -61,10 +61,13 @@ wecom-cli doc smartsheet_add_records '{"docid": "DOCID", "sheet_id": "SHEETID", 
 
 ### smartsheet_update_records
 
-更新一行或多行记录，单次必须在 500 行内。需提供 record_id（通过 `smartsheet_get_records` 获取）。
+更新一行或多行记录，单次建议在 500 行内。需提供 record_id（通过 `smartsheet_get_records` 获取）。支持通过 `key_type` 指定 values 的 key 使用字段标题或字段 ID：
+
+- `CELL_VALUE_KEY_TYPE_FIELD_TITLE`：key 为字段标题
+- `CELL_VALUE_KEY_TYPE_FIELD_ID`：key 为字段 ID
 
 ```bash
-wecom-cli doc smartsheet_update_records '{"docid": "DOCID", "sheet_id": "SHEETID", "key_type": "CELL_VALUE_KEY_TYPE_FIELD_ID", "records": [{"record_id": "RECORDID", "values": {"FIELDID": [{"type": "text", "text": "更新后的内容"}]}}]}'
+wecom-cli doc smartsheet_update_records '{"docid": "DOCID", "sheet_id": "SHEETID", "key_type": "CELL_VALUE_KEY_TYPE_FIELD_TITLE", "records": [{"record_id": "RECORDID", "values": {"任务名称": [{"type": "text", "text": "更新后的内容"}]}}]}'
 ```
 
 **注意**：创建时间、最后编辑时间、创建人、最后编辑人字段不可更新。

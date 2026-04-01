@@ -102,7 +102,7 @@ wecom-cli meeting set_invite_meeting_members '{"meetingid": "<会议id>", "invit
 wecom-cli meeting cancel_meeting '{"meetingid": "<target_meetingid>"}'
 ```
 
-4. **展示结果**:
+3. **展示结果**:
 
 ```
 ✅ 会议已取消: 技术方案评审
@@ -117,7 +117,7 @@ wecom-cli meeting cancel_meeting '{"meetingid": "<target_meetingid>"}'
 **步骤:**
 
 1. **定位会议**: 通过 `wecomcli-get-meeting` 技能查询会议列表 + 匹配找到目标会议.
-2. **获取当前受邀成员**: `set_invite_members` 为全量覆盖, 必须先通过 `wecomcli-get-meeting` 技能的 `get_meeting_info` 获取会议详情, 获取现有成员后再合并.
+2. **获取当前受邀成员**: `set_invite_meeting_members` 为全量覆盖, 必须先通过 `wecomcli-get-meeting` 技能的 `get_meeting_info` 获取会议详情, 获取现有成员后再合并.
 3. **通讯录查询**: 调用 `wecomcli-lookup-contact` 技能获取通讯录成员, 按姓名筛选出王五的 userid.
 
 ```bash
@@ -133,7 +133,7 @@ wecom-cli contact get_userlist '{}'
 wecom-cli meeting set_invite_meeting_members '{"meetingid": "<target_meetingid>", "invitees": [{"userid": "zhangsan"}, {"userid": "lisi"}, {"userid": "wangwu"}]}'
 ```
 
-7. **展示结果**:
+6. **展示结果**:
 
 ```
 ✅ 会议成员已更新: 技术方案评审
@@ -147,4 +147,4 @@ wecom-cli meeting set_invite_meeting_members '{"meetingid": "<target_meetingid>"
 - **参与人仅支持企业内成员**, 不支持外部人员
 - **通讯录查询**: 涉及参与人时, 需先通过 `wecomcli-lookup-contact` 技能的 `get_userlist` 接口获取全量通讯录成员, 再按姓名/别名本地筛选匹配出对应的 `userid`. 该接口无入参, 返回当前用户可见范围内的成员列表 (含 `userid`, `name`, `alias`)
 - **定位会议**: 管理操作需先通过 `wecomcli-get-meeting` 技能查询到目标会议的 meetingid
-- **成员更新为全量覆盖**: `set_invite_members` 传入的列表将替换现有成员列表, 需先获取当前成员再合并
+- **成员更新为全量覆盖**: `set_invite_meeting_members` 传入的列表将替换现有成员列表, 需先获取当前成员再合并
