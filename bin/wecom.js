@@ -17,6 +17,7 @@ function getPlatformPackage() {
   const platformMap = {
     'darwin-arm64': '@wecom/cli-darwin-arm64',
     'darwin-x64': '@wecom/cli-darwin-x64',
+    'linux-arm64': '@wecom/cli-linux-arm64',
     'linux-x64': '@wecom/cli-linux-x64',
     'win32-x64': '@wecom/cli-win32-x64',
   };
