@@ -17,6 +17,7 @@ export default {
         'ci', // CI 配置
         'chore', // 其他杂项
         'revert', // 回滚
+        'skills', // skills 更新
       ],
     ],
     // type 不能为空

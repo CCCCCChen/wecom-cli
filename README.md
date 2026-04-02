@@ -7,14 +7,14 @@
 >
 > <img src="https://wwcdn.weixin.qq.com/node/wework/images/202603241759.3fb01c32cc.png" alt="扫码入群交流" width="200" />
 
-企业微信命令行工具 — 让人类和 AI Agent 都能在终端中操作企业微信。覆盖通讯录、待办、会议、消息、日程、文档、智能表格等核心业务域，提供 7 大品类及 12 个 AI Agent [Skills](https://github.com/WecomTeam/wecom-cli/tree/main/skills)。
+企业微信命令行工具 — 让人类和 AI Agent 都能在终端中操作企业微信。覆盖通讯录、待办、会议、消息、日程、文档、智能表格等核心业务域，提供 6 个 AI Agent [Skills](https://github.com/WecomTeam/wecom-cli/tree/main/skills)。
 
 [安装](#安装与快速开始) · [AI Agent Skills](#agent-skills) · [命令](#命令参考) · [品类一览](#品类与能力一览)
 
 ## 为什么选 wecom-cli？
 
 - **为 AI Agent 所设计** — 开箱即用的 [Skills](https://github.com/WecomTeam/wecom-cli/tree/main/skills)， 适配主流 AI 工具，Agent 可直接操作企业微信，无需额外适配
-- **覆盖用户核心需求** — 7 大业务品类、12 个 AI Agent [Skills](https://github.com/WecomTeam/wecom-cli/tree/main/skills)，覆盖通讯录、待办、会议、消息、日程、文档与智能表格
+- **覆盖用户核心需求** — 7个[Skills](https://github.com/WecomTeam/wecom-cli/tree/main/skills)，覆盖通讯录、待办、会议、消息、日程、文档与智能表格
 - **快速上手** — `init` 配置凭证，直接调用品类工具，从安装到第一次 API 调用只需两步
 
 ## 功能
@@ -60,18 +60,12 @@ wecom-cli contact get_userlist '{}'
 
 | Skill | 品类 | 说明 |
 | ----- | ---- | ---- |
-| `wecomcli-lookup-contact` | contact | 通讯录成员查询，按姓名/别名搜索 |
-| `wecomcli-get-todo-list` | todo | 待办列表查询，按时间过滤和分页 |
-| `wecomcli-get-todo-detail` | todo | 待办详情批量查询 |
-| `wecomcli-edit-todo` | todo | 待办创建、更新、删除、状态变更 |
-| `wecomcli-create-meeting` | meeting | 创建预约会议 |
-| `wecomcli-edit-meeting` | meeting | 取消会议、更新受邀成员 |
-| `wecomcli-get-meeting` | meeting | 查询会议列表和详情 |
-| `wecomcli-get-msg` | msg | 会话列表、消息记录、媒体下载、文本发送 |
-| `wecomcli-manage-schedule` | schedule | 日程 CRUD、参与人管理、闲忙查询 |
-| `wecomcli-manage-doc` | doc | 文档创建/读取/编辑 |
-| `wecomcli-manage-smartsheet-schema` | smartsheet | 智能表格子表与字段管理 |
-| `wecomcli-manage-smartsheet-data` | smartsheet | 智能表格记录增删改查 |
+| `wecomcli-contact` | contact | 查询通讯录成员 |
+| `wecomcli-todo` | todo | 待办列表查询、查询待办详情、创建待办、更新待办、删除待办、变更待办状态 |
+| `wecomcli-meeting` | meeting | 创建预约会议、取消会议、更新参会成员、查询会议列表和详情 |
+| `wecomcli-msg` | msg | 查询会话列表、查询会话的消息记录、下载会话中的媒体文件、发送文本消息 |
+| `wecomcli-schedule` | schedule | 查询日程列表、查询日程详情、取消日程、管理日程参与人、查询用户日程闲忙状态 |
+| `wecomcli-doc` | doc | 创建文档、覆盖写文档、读取文档内容、管理智能表格子表与字段、增删改查智能表行记录 |
 
 ## 命令参考
 
